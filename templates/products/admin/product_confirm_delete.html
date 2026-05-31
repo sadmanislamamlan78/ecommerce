@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Product{% endblock %}
+
+{% block content %}
+<section class="page-section admin-section">
+    <div class="container admin-form-container">
+        <h1>Delete Product</h1>
+        <p>Are you sure you want to delete <strong>{{ product.name }}</strong>? This cannot be undone.</p>
+
+        <div class="admin-delete-preview">
+            {% if product.image_url %}
+            <img src="{{ product.image_url }}" alt="">
+            {% endif %}
+            <div>
+                <p>৳{{ product.price }} · {{ product.category_name }}</p>
+                <p class="text-muted">Stock: {{ product.stock }}</p>
+            </div>
+        </div>
+
+        <form method="post" class="admin-form-actions">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary" style="background:var(--color-error);border-color:var(--color-error);">
+                Yes, Delete
+            </button>
+            <a href="{% url 'products:admin_dashboard' %}" class="btn btn-outline">Cancel</a>
+        </form>
+    </div>
+</section>
+{% endblock %}

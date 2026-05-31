@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shop{% endblock %}
+
+{% block content %}
+<section class="page-hero page-hero-sm">
+    <div class="container">
+        <h1>Shop All</h1>
+        <p class="text-muted">Browse our full collection — filter by category, price, or search by name.</p>
+    </div>
+</section>
+
+<section class="shop-section">
+    <div class="container shop-layout">
+        <aside class="shop-filters">
+            <form method="get" action="{% url 'products:shop' %}" class="filter-form" id="filterForm">
+                <input type="hidden" name="filter" value="1">
+                <h2 class="filter-title">Filters</h2>
+
+                <div class="form-group">
+                    <label for="searchInput">Search</label>
+                    <input type="search" id="searchInput" name="q" class="form-input"
+                           placeholder="Product name..." value="{{ search }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Category</label>
+                    <div class="filter-chips">
+                        <a href="{% url 'products:shop' %}{% if search %}?q={{ search|urlencode }}{% endif %}"
+                           class="filter-chip {% if not active_category %}active{% endif %}">All</a>
+                        {% for cat in categories %}
+                        <a href="?category={{ cat.slug }}{% if search %}&q={{ search|urlencode }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
+                           class="filter-chip {% if active_category == cat.slug %}active{% endif %}">
+                            {{ cat.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% if active_category %}
+                    <input type="hidden" name="category" value="{{ active_category }}">
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>Price range (৳)</label>
+                    <div class="price-range-display">
+                        <span>৳<span id="minPriceLabel">{{ slider_min }}</span></span>
+                        <span>—</span>
+                        <span>৳<span id="maxPriceLabel">{{ slider_max }}</span></span>
+                    </div>
+                    <div class="price-sliders">
+                        <input type="range" id="minPriceSlider" class="price-slider"
+                               min="{{ price_min }}" max="{{ price_max }}"
+                               value="{{ slider_min }}" step="50">
+                        <input type="range" id="maxPriceSlider" class="price-slider"
+                               min="{{ price_min }}" max="{{ price_max }}"
+                               value="{{ slider_max }}" step="50">
+                    </div>
+                    <input type="hidden" name="min_price" id="minPriceInput" value="{{ slider_min }}">
+                    <input type="hidden" name="max_price" id="maxPriceInput" value="{{ slider_max }}">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Apply Filters</button>
+                <a href="{% url 'products:shop' %}" class="btn btn-outline btn-block filter-clear">Clear all</a>
+            </form>
+        </aside>
+
+        <div class="shop-results">
+            <div class="shop-results-header">
+                <p class="text-muted">{{ result_count }} product{{ result_count|pluralize }} found</p>
+                {% if search or active_category or min_price or max_price %}
+                <p class="active-filters">
+                    {% if search %}<span>Search: "{{ search }}"</span>{% endif %}
+                    {% if active_category %}<span>Category: {{ active_category }}</span>{% endif %}
+                </p>
+                {% endif %}
+            </div>
+
+            {% if products %}
+            <div class="product-grid">
+                {% for product in products %}
+                {% include 'includes/product_card.html' %}
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>No products match your filters.</p>
+                <a href="{% url 'products:shop' %}" class="btn btn-primary">View all products</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/shop.js' %}"></script>
+{% endblock %}

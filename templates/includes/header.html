@@ -1,0 +1,65 @@
+{% load static %}
+<header class="site-header">
+    <div class="container header-inner">
+        <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+
+        <a href="{% url 'products:home' %}" class="logo">
+            <span class="logo-mark">S</span>
+            <span class="logo-text">StyleHouse</span>
+        </a>
+
+        <nav class="main-nav" id="mainNav">
+            <ul class="nav-list">
+                <li><a href="{% url 'products:home' %}">Home</a></li>
+                <li class="nav-dropdown">
+                    <button class="nav-dropdown-btn" type="button" aria-expanded="false">
+                        Categories
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                            <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                    </button>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="{% url 'products:shop' %}?category=men">Men</a></li>
+                        <li><a href="{% url 'products:shop' %}?category=women">Women</a></li>
+                        <li><a href="{% url 'products:shop' %}?category=kids">Kids</a></li>
+                    </ul>
+                </li>
+                <li><a href="{% url 'products:shop' %}">Shop</a></li>
+            </ul>
+        </nav>
+
+        <div class="header-actions">
+            <a href="{% url 'cart:cart' %}" class="cart-link" aria-label="Shopping cart">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M6 6h15l-1.5 9h-12z"/>
+                    <circle cx="9" cy="20" r="1"/>
+                    <circle cx="18" cy="20" r="1"/>
+                    <path d="M6 6L5 3H2"/>
+                </svg>
+                {% if cart_count %}<span class="cart-badge">{{ cart_count }}</span>{% endif %}
+            </a>
+
+            <div class="user-menu">
+                {% if request.supabase_user %}
+                <button class="user-menu-btn" type="button" aria-expanded="false">
+                    <span class="user-avatar">{{ request.session.supabase_email|first|upper }}</span>
+                </button>
+                <ul class="user-dropdown">
+                    <li class="user-dropdown-email">{{ request.session.supabase_email }}</li>
+                    <li><a href="{% url 'accounts:profile' %}">My Profile</a></li>
+                    <li><a href="{% url 'orders:history' %}">My Orders</a></li>
+                    {% if request.session.is_staff %}
+                    <li><a href="{% url 'products:admin_dashboard' %}">Admin</a></li>
+                    {% endif %}
+                    <li><a href="{% url 'accounts:logout' %}">Sign Out</a></li>
+                </ul>
+                {% else %}
+                <a href="{% url 'accounts:login' %}" class="btn btn-ghost btn-sm">Sign In</a>
+                <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</header>

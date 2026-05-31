@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container">
+        <h1 class="section-title">Your Shopping Cart</h1>
+
+        <!-- Cart layout: dynamic state -->
+        <div id="cart-container" class="cart-container" {% if not cart_items %}style="display: none;"{% endif %}>
+            <div class="cart-grid-layout">
+                <!-- Cart Items Column -->
+                <div class="cart-items-column">
+                    <div class="cart-headers">
+                        <div class="col-product">Product</div>
+                        <div class="col-price">Price</div>
+                        <div class="col-qty">Quantity</div>
+                        <div class="col-total">Subtotal</div>
+                        <div class="col-actions"></div>
+                    </div>
+
+                    <div class="cart-list-wrapper">
+                        {% for item in cart_items %}
+                        <article class="cart-item-row" id="cart-item-{{ item.product_id }}">
+                            <div class="col-product item-meta-details">
+                                <div class="item-img-box">
+                                    {% if item.image_url %}
+                                    <img src="{{ item.image_url }}" alt="{{ item.name }}" class="cart-item-image-premium">
+                                    {% else %}
+                                    <div class="cart-item-image-premium cart-item-placeholder">No image</div>
+                                    {% endif %}
+                                </div>
+                                <div class="item-text-info">
+                                    <h3><a href="{% url 'products:detail' slug=item.slug %}" class="item-name-link">{{ item.name }}</a></h3>
+                                    <p class="item-stock-status">
+                                        {% if item.stock > 0 %}
+                                        <span class="in-stock-label">In stock ({{ item.stock }} available)</span>
+                                        {% else %}
+                                        <span class="out-of-stock-label">Out of stock</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-price price-cell">
+                                <span class="mobile-only-label">Price:</span>
+                                ৳{{ item.price }}
+                            </div>
+                            <div class="col-qty qty-cell">
+                                <span class="mobile-only-label">Quantity:</span>
+                                <div class="quantity-controls-premium">
+                                    <button type="button" class="qty-btn-premium qty-minus" data-id="{{ item.product_id }}" aria-label="Decrease quantity">−</button>
+                                    <input type="number" 
+                                           id="qty-input-{{ item.product_id }}" 
+                                           class="qty-input-premium" 
+                                           value="{{ item.quantity }}" 
+                                           min="1" 
+                                           max="{{ item.stock }}" 
+                                           data-id="{{ item.product_id }}"
+                                           data-previous-value="{{ item.quantity }}"
+                                           readonly>
+                                    <button type="button" class="qty-btn-premium qty-plus" data-id="{{ item.product_id }}" aria-label="Increase quantity">+</button>
+                                </div>
+                            </div>
+                            <div class="col-total total-cell">
+                                <span class="mobile-only-label">Total:</span>
+                                <strong class="line-subtotal" id="line-subtotal-{{ item.product_id }}">৳{{ item.subtotal }}</strong>
+                            </div>
+                            <div class="col-actions actions-cell">
+                                <button type="button" class="remove-item-btn" data-id="{{ item.product_id }}" aria-label="Remove item">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </article>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Order Summary Column -->
+                <aside class="cart-summary-sidebar">
+                    <div class="summary-card">
+                        <h2>Order Summary</h2>
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span id="cart-subtotal">৳{{ subtotal }}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>VAT (5%)</span>
+                            <span id="cart-tax">৳{{ tax }}</span>
+                        </div>
+                        <div class="summary-row delivery-row">
+                            <span>Shipping</span>
+                            <span>Free</span>
+                        </div>
+                        <hr class="summary-divider">
+                        <div class="summary-row grand-total-row">
+                            <span>Total</span>
+                            <strong id="cart-grandtotal">৳{{ grand_total }}</strong>
+                        </div>
+                        <a href="/orders/checkout/" class="btn btn-primary btn-block btn-lg checkout-btn">
+                            Proceed to Checkout
+                        </a>
+                        <a href="{% url 'products:shop' %}" class="btn btn-ghost btn-block continue-shopping-btn">
+                            Continue Shopping
+                        </a>
+                    </div>
+                </aside>
+            </div>
+        </div>
+
+        <!-- Empty state screen -->
+        <div id="cart-empty" class="empty-state-premium" {% if cart_items %}style="display: none;"{% endif %}>
+            <div class="empty-icon-box">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+            </div>
+            <h2>Your cart is empty</h2>
+            <p>Looks like you haven't added any fashion items to your cart yet. Explore our fresh collection and find your style!</p>
+            <a href="{% url 'products:shop' %}" class="btn btn-primary btn-lg">Explore Shop</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    'use strict';
+
+    const getCookie = (name) => {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    };
+
+    const csrftoken = getCookie('csrftoken');
+
+    // Update navbar badge count
+    const updateNavbarBadge = (count) => {
+        let badge = document.querySelector('.cart-badge');
+        const cartLink = document.querySelector('.cart-link');
+        
+        if (count > 0) {
+            if (badge) {
+                badge.textContent = count;
+            } else if (cartLink) {
+                badge = document.createElement('span');
+                badge.className = 'cart-badge';
+                badge.textContent = count;
+                cartLink.appendChild(badge);
+            }
+        } else {
+            if (badge) {
+                badge.remove();
+            }
+        }
+    };
+
+    // Update summary values
+    const updateTotals = (data) => {
+        document.getElementById('cart-subtotal').textContent = '৳' + data.subtotal;
+        document.getElementById('cart-tax').textContent = '৳' + data.tax;
+        document.getElementById('cart-grandtotal').textContent = '৳' + data.grand_total;
+        updateNavbarBadge(data.cart_count);
+    };
+
+    // AJAX call to update cart quantity
+    const updateQuantity = (productId, newQty, inputEl) => {
+        const url = `/cart/update/${productId}/`;
+        const formData = new FormData();
+        formData.append('quantity', newQty);
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response error');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Update quantity inputs
+                inputEl.value = data.quantity;
+                inputEl.setAttribute('data-previous-value', data.quantity);
+                
+                // Update row subtotal
+                const lineTotalEl = document.getElementById(`line-subtotal-${productId}`);
+                if (lineTotalEl) {
+                    lineTotalEl.textContent = '৳' + data.item_subtotal;
+                }
+
+                // Update summary card
+                updateTotals(data);
+
+                // Show warning message if quantity was clamped
+                if (data.warning) {
+                    window.showToast(data.message);
+                }
+            } else {
+                window.showToast(data.message || 'Error updating quantity');
+                // Revert to previous value
+                inputEl.value = inputEl.getAttribute('data-previous-value');
+            }
+        })
+        .catch(err => {
+            console.error('Update failed:', err);
+            window.showToast('Could not update quantity. Please try again.');
+            inputEl.value = inputEl.getAttribute('data-previous-value');
+        });
+    };
+
+    // AJAX call to remove item
+    const removeItem = (productId, rowEl) => {
+        const url = `/cart/remove/${productId}/`;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response error');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Animate removal
+                rowEl.style.opacity = '0';
+                rowEl.style.transform = 'translateX(-30px)';
+                rowEl.style.transition = 'all 0.3s ease';
+                
+                setTimeout(() => {
+                    rowEl.remove();
+                    updateTotals(data);
+                    
+                    // Show message
+                    window.showToast(data.message);
+
+                    // Check if empty
+                    const items = document.querySelectorAll('.cart-item-row');
+                    if (items.length === 0) {
+                        document.getElementById('cart-container').style.display = 'none';
+                        document.getElementById('cart-empty').style.display = 'flex';
+                    }
+                }, 300);
+            } else {
+                window.showToast(data.message || 'Error removing item');
+            }
+        })
+        .catch(err => {
+            console.error('Removal failed:', err);
+            window.showToast('Could not remove item. Please try again.');
+        });
+    };
+
+    // Event Delegation: Plus / Minus buttons
+    document.addEventListener('click', (e) => {
+        const plusBtn = e.target.closest('.qty-plus');
+        const minusBtn = e.target.closest('.qty-minus');
+
+        if (plusBtn) {
+            const pId = plusBtn.getAttribute('data-id');
+            const input = document.getElementById(`qty-input-${pId}`);
+            if (input) {
+                const max = parseInt(input.max, 10) || 99;
+                let val = parseInt(input.value, 10) || 1;
+                if (val < max) {
+                    updateQuantity(pId, val + 1, input);
+                } else {
+                    window.showToast('Maximum available stock reached.');
+                }
+            }
+        }
+
+        if (minusBtn) {
+            const pId = minusBtn.getAttribute('data-id');
+            const input = document.getElementById(`qty-input-${pId}`);
+            if (input) {
+                let val = parseInt(input.value, 10) || 1;
+                if (val > 1) {
+                    updateQuantity(pId, val - 1, input);
+                }
+            }
+        }
+
+        // Remove button click
+        const removeBtn = e.target.closest('.remove-item-btn');
+        if (removeBtn) {
+            const pId = removeBtn.getAttribute('data-id');
+            const row = document.getElementById(`cart-item-${pId}`);
+            if (row) {
+                removeItem(pId, row);
+            }
+        }
+    });
+
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<section class="page-section admin-section">
+    <div class="container">
+        <div class="admin-header">
+            <div>
+                <h1>Product Admin</h1>
+                <p class="text-muted">Manage your catalog — {{ product_count }} product{{ product_count|pluralize }}</p>
+            </div>
+            <a href="{% url 'products:admin_product_create' %}" class="btn btn-primary">+ Add Product</a>
+        </div>
+
+        {% if products %}
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td class="admin-thumb">
+                            {% if product.image_url %}
+                            <img src="{{ product.image_url }}" alt="">
+                            {% else %}
+                            <span class="admin-thumb-placeholder">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ product.name }}</strong>
+                            <span class="admin-slug">{{ product.slug }}</span>
+                        </td>
+                        <td>{{ product.category_name|default:"—" }}</td>
+                        <td>৳{{ product.price }}</td>
+                        <td>
+                            {% if product.stock == 0 %}
+                            <span class="badge badge-danger">0</span>
+                            {% elif product.stock < 10 %}
+                            <span class="badge badge-warning">{{ product.stock }}</span>
+                            {% else %}
+                            {{ product.stock }}
+                            {% endif %}
+                        </td>
+                        <td class="admin-actions">
+                            <a href="{% url 'products:detail' slug=product.slug %}" class="btn btn-ghost btn-sm" target="_blank">View</a>
+                            <a href="{% url 'products:admin_product_edit' product.id %}" class="btn btn-outline btn-sm">Edit</a>
+                            <a href="{% url 'products:admin_product_delete' product.id %}" class="btn btn-ghost btn-sm admin-delete-link">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>No products yet. Add your first product to the shop.</p>
+            <a href="{% url 'products:admin_product_create' %}" class="btn btn-primary">Add Product</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

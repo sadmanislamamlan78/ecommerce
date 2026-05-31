@@ -1,0 +1,26 @@
+<article class="product-card">
+    <a href="{% url 'products:detail' slug=product.slug %}" class="product-card-link">
+        <div class="product-image">
+            {% if product.image_url %}
+            <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy"
+                 class="product-img"
+                 onerror="this.classList.add('is-broken'); this.src='';">
+            <div class="product-image-placeholder product-img-fallback">No image</div>
+            {% else %}
+            <div class="product-image-placeholder">No image</div>
+            {% endif %}
+            {% if product.stock == 0 %}
+            <span class="product-badge product-badge-sold">Sold out</span>
+            {% elif product.stock < 10 %}
+            <span class="product-badge">Low stock</span>
+            {% endif %}
+        </div>
+        <div class="product-info">
+            {% if product.category_name %}
+            <span class="product-category">{{ product.category_name }}</span>
+            {% endif %}
+            <h3>{{ product.name }}</h3>
+            <p class="product-price">৳{{ product.price }}</p>
+        </div>
+    </a>
+</article>

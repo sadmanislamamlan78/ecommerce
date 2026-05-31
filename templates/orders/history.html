@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Orders{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container" style="max-width: 900px;">
+        <h1 class="section-title">My Order History</h1>
+
+        {% if orders %}
+        <div class="orders-history-list" style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 2rem;">
+            {% for order in orders %}
+            <article class="order-card" style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm);">
+                <!-- Order Card Header -->
+                <header class="order-card-header" style="padding: 1.25rem 1.5rem; background: var(--color-bg); border-bottom: 1px solid var(--color-border); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem;">
+                    <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center;">
+                        <div>
+                            <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-muted); font-weight: 600; display: block; margin-bottom: 0.15rem;">Order Placed</span>
+                            <span style="font-size: 0.9rem; font-weight: 500; color: var(--color-text);">{{ order.created_at|slice:":10" }}</span>
+                        </div>
+                        <div>
+                            <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-muted); font-weight: 600; display: block; margin-bottom: 0.15rem;">Order Number</span>
+                            <span style="font-size: 0.9rem; font-weight: 700; color: var(--color-accent);">#{{ order.id }}</span>
+                        </div>
+                        <div>
+                            <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-muted); font-weight: 600; display: block; margin-bottom: 0.15rem;">Total Amount</span>
+                            <span style="font-size: 0.95rem; font-weight: 700; color: var(--color-primary);">৳{{ order.total_amount }}</span>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span class="status-pill status-{{ order.status|lower }}">
+                            {{ order.status|upper }}
+                        </span>
+                        <button type="button" class="order-toggle-btn" aria-label="Toggle details" style="background: none; border: none; cursor: pointer; color: var(--color-text-muted); padding: 0.25rem; display: flex; align-items: center; justify-content: center; transition: transform var(--transition);">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="toggle-icon" style="transform: rotate(0deg); transition: transform var(--transition);">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+                </header>
+
+                <!-- Order Card Details (Collapsible) -->
+                <div class="order-card-body" style="padding: 1.5rem; transition: max-height 0.3s ease; overflow: hidden;">
+                    <div class="order-details-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+                        <!-- Items List -->
+                        <div class="order-items-list-box">
+                            <h3 style="font-size: 0.95rem; text-transform: uppercase; color: var(--color-text-muted); font-weight: 600; margin-bottom: 1.25rem; letter-spacing: 0.05em;">
+                                Items Purchased ({{ order.total_qty }})
+                            </h3>
+                            <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                                {% for item in order.items %}
+                                <div class="order-item-row" style="display: flex; gap: 1.25rem; align-items: center; justify-content: space-between;">
+                                    <div style="display: flex; gap: 1rem; align-items: center; min-width: 0; flex: 1;">
+                                        <div style="width: 54px; height: 68px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--color-border); background: var(--color-bg); flex-shrink: 0;">
+                                            {% if item.product_image %}
+                                            <img src="{{ item.product_image }}" alt="{{ item.product_name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                            {% else %}
+                                            <div style="display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: var(--color-text-muted); height: 100%;">No img</div>
+                                            {% endif %}
+                                        </div>
+                                        <div style="min-width: 0;">
+                                            {% if item.product_slug %}
+                                            <h4 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 0.25rem; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
+                                                <a href="{% url 'products:detail' slug=item.product_slug %}" class="item-name-link" style="transition: color var(--transition);">{{ item.product_name }}</a>
+                                            </h4>
+                                            {% else %}
+                                            <h4 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 0.25rem; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; color: var(--color-text-muted);">
+                                                {{ item.product_name }} (Discontinued)
+                                            </h4>
+                                            {% endif %}
+                                            <span style="font-size: 0.85rem; color: var(--color-text-muted);">
+                                                Quantity: {{ item.quantity }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div style="text-align: right; flex-shrink: 0;">
+                                        <span style="font-size: 0.85rem; color: var(--color-text-muted); display: block;">
+                                            {{ item.quantity }} &times; ৳{{ item.price }}
+                                        </span>
+                                        <strong style="font-size: 0.95rem; color: var(--color-accent); font-weight: 600;">
+                                            ৳{% widthratio item.price 1 item.quantity %}
+                                        </strong>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Recipient details -->
+                        <div class="order-recipient-info" style="border-left: 1px solid var(--color-border); padding-left: 2rem;">
+                            <h3 style="font-size: 0.95rem; text-transform: uppercase; color: var(--color-text-muted); font-weight: 600; margin-bottom: 1.25rem; letter-spacing: 0.05em;">
+                                Delivery Address
+                            </h3>
+                            <div style="background: var(--color-bg); border-radius: var(--radius); padding: 1.25rem; border: 1px solid var(--color-border);">
+                                <div style="font-size: 0.9rem; color: var(--color-text); line-height: 1.7; white-space: pre-line;">
+                                    {{ order.shipping_address }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="empty-state-premium" style="max-width: 500px; margin: 4rem auto;">
+            <div class="empty-icon-box">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+            </div>
+            <h2>No orders found</h2>
+            <p>You haven't placed any orders yet. Add items to your cart, check out, and they will appear here!</p>
+            <a href="{% url 'products:shop' %}" class="btn btn-primary btn-lg">Start Shopping</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Expandable Accordion Script & Styles -->
+<style>
+.status-pill {
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    display: inline-block;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-delivered {
+    background: #d8f3dc;
+    color: var(--color-success);
+}
+
+.status-cancelled {
+    background: #fde8e8;
+    color: var(--color-error);
+}
+
+.status-processing {
+    background: #e7f1ff;
+    color: #1a4d8c;
+}
+
+@media (max-width: 768px) {
+    .order-details-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+    }
+    .order-recipient-info {
+        border-left: none !important;
+        padding-left: 0 !important;
+        border-top: 1px solid var(--color-border);
+        padding-top: 1.5rem;
+    }
+}
+</style>
+
+<script>
+(function() {
+    'use strict';
+    
+    document.querySelectorAll('.order-card').forEach(card => {
+        const toggleBtn = card.querySelector('.order-toggle-btn');
+        const cardBody = card.querySelector('.order-card-body');
+        const icon = card.querySelector('.toggle-icon');
+        const header = card.querySelector('.order-card-header');
+        
+        let isOpen = true; // Open by default
+        
+        const setOpen = (open) => {
+            isOpen = open;
+            if (open) {
+                cardBody.style.display = 'block';
+                icon.style.transform = 'rotate(0deg)';
+                toggleBtn.setAttribute('aria-expanded', 'true');
+            } else {
+                cardBody.style.display = 'none';
+                icon.style.transform = 'rotate(-90deg)';
+                toggleBtn.setAttribute('aria-expanded', 'false');
+            }
+        };
+
+        // Initialize state
+        setOpen(true);
+        
+        const toggle = (e) => {
+            // Only toggle if they click header/btn, not links
+            if (e.target.closest('a')) return;
+            setOpen(!isOpen);
+        };
+        
+        header.addEventListener('click', toggle);
+    });
+})();
+</script>
+{% endblock %}

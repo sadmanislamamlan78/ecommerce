@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="page-section admin-section">
+    <div class="container admin-form-container">
+        <nav class="breadcrumb">
+            <a href="{% url 'products:admin_dashboard' %}">Admin</a>
+            <span>/</span>
+            <span>{{ title }}</span>
+        </nav>
+
+        <h1>{{ title }}</h1>
+
+        <form method="post" enctype="multipart/form-data" class="admin-product-form">
+            {% csrf_token %}
+
+            <div class="admin-form-grid">
+                <div class="admin-form-main">
+                    <div class="form-group">
+                        <label for="{{ form.name.id_for_label }}">Product name *</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}<span class="field-error">{{ form.name.errors.0 }}</span>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.slug.id_for_label }}">URL slug</label>
+                        {{ form.slug }}
+                        <span class="form-hint">{{ form.slug.help_text }}</span>
+                        {% if form.slug.errors %}<span class="field-error">{{ form.slug.errors.0 }}</span>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.description.id_for_label }}">Description</label>
+                        {{ form.description }}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ form.price.id_for_label }}">Price (৳) *</label>
+                            {{ form.price }}
+                            {% if form.price.errors %}<span class="field-error">{{ form.price.errors.0 }}</span>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.stock.id_for_label }}">Stock *</label>
+                            {{ form.stock }}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.category_id.id_for_label }}">Category *</label>
+                        {{ form.category_id }}
+                    </div>
+                </div>
+
+                <aside class="admin-form-sidebar">
+                    <div class="summary-card">
+                        <h2>Product Image</h2>
+                        {% if is_edit and product.image_url %}
+                        <div class="admin-preview-image">
+                            <img src="{{ product.image_url }}" alt="Current image">
+                            <p class="form-hint">Current image — upload a new file to replace</p>
+                        </div>
+                        {% endif %}
+
+                        <div class="form-group">
+                            <label for="{{ form.image_file.id_for_label }}">Upload image</label>
+                            {{ form.image_file }}
+                            <span class="form-hint">{{ form.image_file.help_text }}</span>
+                            {% if form.image_file.errors %}<span class="field-error">{{ form.image_file.errors.0 }}</span>{% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.image_url.id_for_label }}">Or image URL</label>
+                            {{ form.image_url }}
+                            <span class="form-hint">{{ form.image_url.help_text }}</span>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+
+            <div class="admin-form-actions">
+                <button type="submit" class="btn btn-primary btn-lg">{{ submit_label }}</button>
+                <a href="{% url 'products:admin_dashboard' %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Account{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="auth-card auth-card-wide">
+        <div class="auth-header">
+            <h1>Create your account</h1>
+            <p>Join StyleHouse for exclusive fashion deals</p>
+        </div>
+
+        <form method="post" class="auth-form" novalidate>
+            {% csrf_token %}
+            {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
+            <div class="form-group">
+                <label for="{{ form.full_name.id_for_label }}">Full name</label>
+                {{ form.full_name }}
+                {% if form.full_name.errors %}<span class="field-error">{{ form.full_name.errors.0 }}</span>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}">Email</label>
+                {{ form.email }}
+                {% if form.email.errors %}<span class="field-error">{{ form.email.errors.0 }}</span>{% endif %}
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.password.id_for_label }}">Password</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}<span class="field-error">{{ form.password.errors.0 }}</span>{% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.confirm_password.id_for_label }}">Confirm password</label>
+                    {{ form.confirm_password }}
+                    {% if form.confirm_password.errors %}<span class="field-error">{{ form.confirm_password.errors.0 }}</span>{% endif %}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+        </form>
+
+        <p class="auth-switch">
+            Already have an account?
+            <a href="{% url 'accounts:login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Sign in</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

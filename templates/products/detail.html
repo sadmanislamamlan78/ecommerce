@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="{% url 'products:home' %}">Home</a>
+            <span>/</span>
+            <a href="{% url 'products:shop' %}">Shop</a>
+            {% if product.category_slug %}
+            <span>/</span>
+            <a href="{% url 'products:shop' %}?category={{ product.category_slug }}">{{ product.category_name }}</a>
+            {% endif %}
+            <span>/</span>
+            <span aria-current="page">{{ product.name }}</span>
+        </nav>
+
+        <div class="product-detail">
+            <div class="product-detail-gallery">
+                {% if product.image_url %}
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-detail-image product-img"
+                     onerror="this.classList.add('is-broken'); this.src='';">
+                <div class="product-image-placeholder product-detail-image product-img-fallback">No image</div>
+                {% else %}
+                <div class="product-image-placeholder product-detail-image">No image</div>
+                {% endif %}
+            </div>
+
+            <div class="product-detail-info">
+                {% if product.category_name %}
+                <a href="{% url 'products:shop' %}?category={{ product.category_slug }}" class="product-category">
+                    {{ product.category_name }}
+                </a>
+                {% endif %}
+                <h1>{{ product.name }}</h1>
+                <p class="product-detail-price">৳{{ product.price }}</p>
+
+                {% if product.description %}
+                <p class="product-detail-desc">{{ product.description }}</p>
+                {% endif %}
+
+                <div class="product-detail-meta">
+                    <span class="{% if product.stock > 0 %}in-stock{% else %}out-of-stock{% endif %}">
+                        {% if product.stock > 0 %}
+                        In stock ({{ product.stock }} available)
+                        {% else %}
+                        Out of stock
+                        {% endif %}
+                    </span>
+                </div>
+
+                <form method="post" action="{% url 'cart:add' product.id %}" class="add-to-cart-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <div class="quantity-selector">
+                        <label for="quantity">Quantity</label>
+                        <div class="quantity-controls">
+                            <button type="button" class="qty-btn" data-action="minus" aria-label="Decrease">−</button>
+                            <input type="number" id="quantity" name="quantity" value="1" min="1"
+                                   max="{{ product.stock|default:99 }}" class="qty-input">
+                            <button type="button" class="qty-btn" data-action="plus" aria-label="Increase">+</button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg" {% if product.stock == 0 %}disabled{% endif %}>
+                        Add to Cart
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        {% if related_products %}
+        <section class="related-section">
+            <h2 class="section-title">You may also like</h2>
+            <div class="product-grid">
+                {% for product in related_products %}
+                {% include 'includes/product_card.html' %}
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    const input = document.getElementById('quantity');
+    if (!input) return;
+    document.querySelectorAll('.qty-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const max = parseInt(input.max, 10) || 99;
+            let val = parseInt(input.value, 10) || 1;
+            if (btn.dataset.action === 'plus' && val < max) val++;
+            if (btn.dataset.action === 'minus' && val > 1) val--;
+            input.value = val;
+        });
+    });
+})();
+</script>
+{% endblock %}

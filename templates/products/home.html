@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container hero-inner">
+        <div class="hero-content">
+            <span class="hero-tag">New Season 2026</span>
+            <h1>Elevate Your Everyday Style</h1>
+            <p>Discover premium fashion for Men, Women &amp; Kids — crafted for comfort, designed to impress.</p>
+            <div class="hero-actions">
+                <a href="{% url 'products:shop' %}" class="btn btn-primary">Shop Now</a>
+                <a href="{% url 'accounts:register' %}" class="btn btn-outline">Join StyleHouse</a>
+            </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+            <div class="hero-card hero-card-1"></div>
+            <div class="hero-card hero-card-2"></div>
+        </div>
+    </div>
+</section>
+
+<section class="categories-section">
+    <div class="container">
+        <h2 class="section-title">Shop by Category</h2>
+        <div class="category-grid">
+            {% for cat in categories %}
+            <a href="{% url 'products:shop' %}?category={{ cat.slug }}" class="category-card category-{{ cat.slug }}">
+                <span class="category-name">{{ cat.name }}</span>
+                <span class="category-cta">Explore →</span>
+            </a>
+            {% empty %}
+            <a href="{% url 'products:shop' %}?category=men" class="category-card category-men">
+                <span class="category-name">Men</span>
+                <span class="category-cta">Explore →</span>
+            </a>
+            <a href="{% url 'products:shop' %}?category=women" class="category-card category-women">
+                <span class="category-name">Women</span>
+                <span class="category-cta">Explore →</span>
+            </a>
+            <a href="{% url 'products:shop' %}?category=kids" class="category-card category-kids">
+                <span class="category-name">Kids</span>
+                <span class="category-cta">Explore →</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="featured-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Featured Products</h2>
+            <a href="{% url 'products:shop' %}" class="btn btn-outline btn-sm">View all</a>
+        </div>
+        {% if featured_products %}
+        <div class="product-grid">
+            {% for product in featured_products %}
+            {% include 'includes/product_card.html' %}
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>No products yet. Run <code>supabase/phase2_catalog.sql</code> in your Supabase SQL Editor.</p>
+            <a href="{% url 'products:shop' %}" class="btn btn-primary">Go to Shop</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
