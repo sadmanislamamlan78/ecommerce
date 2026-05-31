@@ -292,11 +292,101 @@ Fill in the report template under **`docs/report/`** (cover page + 7 sections) f
 
 ---
 
-## Deployment Notes (later)
+## Deployment Notes (Render)
 
-- Set `DEBUG=False`, strong `SECRET_KEY`, and `ALLOWED_HOSTS` on Render/PythonAnywhere
-- Add environment variables in hosting dashboard (same as `.env`)
-- Run `python manage.py collectstatic`
+The project has been successfully deployed on Render.
+
+### Live Demo
+
+**Application URL:**
+https://ecommerce-6ocd.onrender.com/
+
+### Deployment Configuration
+
+#### Runtime
+
+* Python 3
+
+#### Build Command
+
+```bash
+chmod +x build.sh && ./build.sh
+```
+
+#### Start Command
+
+```bash
+gunicorn ecommerce.wsgi:application
+```
+
+#### Root Directory
+
+Leave blank (repository root).
+
+### Environment Variables
+
+Configure the following environment variables in the Render dashboard:
+
+```env
+SECRET_KEY=your-django-secret-key
+DEBUG=False
+
+SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+SUPABASE_ANON_KEY=your-supabase-anon-key
+
+USE_SUPABASE_DB=False
+SUPABASE_SSL_VERIFY=false
+```
+
+> **Note:** The current deployment uses Django SQLite (`USE_SUPABASE_DB=False`) while continuing to use Supabase services for authentication, products, orders, and storage through the Supabase API.
+
+### Static Files
+
+Static files are collected automatically during deployment:
+
+```bash
+python manage.py collectstatic --noinput
+```
+
+WhiteNoise is used to serve static files in production.
+
+### Deployment Steps
+
+1. Push the latest code to GitHub.
+2. Log in to Render and create a new **Web Service**.
+3. Connect the GitHub repository.
+4. Select the `master` branch.
+5. Configure the build and start commands.
+6. Add all required environment variables.
+7. Deploy the service.
+
+### Post-Deployment Verification
+
+After deployment:
+
+* Open the Render URL.
+* Verify product catalog pages load correctly.
+* Test user registration and login.
+* Test cart functionality.
+* Place a test order and verify it appears in Supabase.
+* Confirm product images load correctly from Supabase Storage.
+
+### Free Tier Notes
+
+Render free services may enter a sleep state after periods of inactivity. The first request after inactivity may take 30–60 seconds while the service wakes up.
+
+### Future Improvements
+
+* Switch Django database backend from SQLite to Supabase PostgreSQL.
+* Configure a custom domain.
+* Restrict `ALLOWED_HOSTS` to the production domain.
+* Add CI/CD workflow for automated deployment.
+* Enable production-grade monitoring and logging.
+* Improve caching and performance optimization.
+
+```
+```
+
 
 ## License
 
